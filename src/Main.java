@@ -38,6 +38,10 @@ public class Main {
 
             printQuestion("Total iteration ? ");
             iteration = scanner.nextInt();
+            printSeparator();
+
+            printResult(drivers.get(0), riders.get(0));
+            printResult(drivers.get(1),null);
 
         } catch ( IOException | InvalidFormatException error) {
             Logger.printError(error.getMessage());

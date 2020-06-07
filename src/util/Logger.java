@@ -1,5 +1,9 @@
 package util;
 
+import com.sun.istack.internal.Nullable;
+import model.Driver;
+import model.Rider;
+
 public class Logger {
     private static final String ANSI_RESET = "\u001B[0m";
     private static final String ANSI_BLACK = "\u001B[30m";
@@ -25,10 +29,18 @@ public class Logger {
     }
 
     public static void printError(String message) {
-        System.out.println(ANSI_GREEN + message + ANSI_RESET);
+        System.out.println(ANSI_RED + message + ANSI_RESET);
     }
 
     public static void printQuestion(String message) {
         System.out.print(ANSI_YELLOW + message + ANSI_RESET );
+    }
+
+    public static void printResult(Driver driver, Rider rider){
+        if(rider == null) {
+            System.out.println("driver-" + driver.getDriverId() + ANSI_RED + " carry nobody" + ANSI_RESET);
+        } else {
+            System.out.println("driver-" + driver.getDriverId() + ANSI_GREEN + " carry rider-" + rider.getRiderId() + ANSI_RESET);
+        }
     }
 }
