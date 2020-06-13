@@ -36,6 +36,14 @@ public class Logger {
         System.out.print(ANSI_YELLOW + message + ANSI_RESET );
     }
 
+    public static void printIteration(int iteration) {
+        System.out.println(ANSI_CYAN + "Iteration-"+ iteration + ANSI_RESET );
+    }
+
+    public static void printParticle(int particle) {
+        System.out.println(ANSI_PURPLE + "Particle-"+ particle + ANSI_RESET );
+    }
+
     public static void printResult(Driver driver, Rider rider){
         if(rider == null) {
             System.out.println("driver-" + driver.getDriverId() + ANSI_RED + " carry nobody" + ANSI_RESET);

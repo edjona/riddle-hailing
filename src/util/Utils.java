@@ -64,13 +64,13 @@ public class Utils {
                     Integer Y0R = Integer.valueOf(getCellValue(row.getCell(2)));
                     rider.setY0R(Y0R);
 
-                    Integer XDR = Integer.valueOf(getCellValue(row.getCell(2)));
+                    Integer XDR = Integer.valueOf(getCellValue(row.getCell(3)));
                     rider.setXDR(XDR);
 
-                    Integer YDR = Integer.valueOf(getCellValue(row.getCell(2)));
+                    Integer YDR = Integer.valueOf(getCellValue(row.getCell(4)));
                     rider.setYDR(YDR);
 
-                    Integer JR = Integer.valueOf(getCellValue(row.getCell(2)));
+                    Integer JR = Integer.valueOf(getCellValue(row.getCell(5)));
                     rider.setJR(JR);
 
                     riders.add(rider);
