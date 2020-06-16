@@ -1,5 +1,8 @@
 package model;
 
+import static Constant.Constants.DRIVER_RATING_MINIMUM;
+import static Constant.Constants.DRIVER_TRAVEL_LIMIT_DISTANCE;
+
 public class Driver {
     private Integer driverId;
     private Integer X0D;
@@ -18,6 +21,18 @@ public class Driver {
         this.JD = JD;
         this.KM = KM;
         this.RD = RD;
+    }
+
+    public boolean isHaveGoodRating() {
+        return RD >= DRIVER_RATING_MINIMUM;
+    }
+
+    public boolean isAvailablePickUpRider(Rider rider) {
+        return JD >= getPickUpDistance(rider);
+    }
+
+    public boolean isAvailableDropOffRider(Rider rider) {
+        return DRIVER_TRAVEL_LIMIT_DISTANCE >= (getPickUpDistance(rider) + rider.getDropOffDistance() + KM);
     }
 
     public Integer getDriverId() {
@@ -66,5 +81,9 @@ public class Driver {
 
     public void setRD(Integer RD) {
         this.RD = RD;
+    }
+
+    private int getPickUpDistance(Rider rider) {
+        return Math.abs(X0D - rider.getX0R()) + Math.abs(Y0D - rider.getY0R());
     }
 }

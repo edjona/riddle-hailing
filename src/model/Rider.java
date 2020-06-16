@@ -20,6 +20,14 @@ public class Rider {
         this.JR = JR;
     }
 
+    public int getDropOffDistance() {
+        return Math.abs(XDR - X0R) + Math.abs(YDR - Y0R);
+    }
+
+    public boolean isAvailablePickUpByDriver(Driver driver) {
+        return JR >= getPickUpDistance(driver);
+    }
+
     public Integer getRiderId() {
         return riderId;
     }
@@ -66,5 +74,9 @@ public class Rider {
 
     public void setJR(Integer JR) {
         this.JR = JR;
+    }
+
+    private int getPickUpDistance(Driver driver) {
+        return Math.abs(driver.getX0D() - X0R) + Math.abs(driver.getY0D() - Y0R);
     }
 }

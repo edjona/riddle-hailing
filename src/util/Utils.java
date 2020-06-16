@@ -7,7 +7,7 @@ import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class Utils {
     public static ArrayList<Driver> getDrivers(Workbook workbook) {
@@ -82,9 +82,18 @@ public class Utils {
         return riders;
     }
 
+    public static Integer[] randomize(int size) {
+        Integer[] array = new Integer[size];
+        for (int i = 0; i < size; i++) {
+            array[i] = i;
+        }
+        List<Integer> integers = Arrays.asList(array);
+        Collections.shuffle(integers);
+        return integers.toArray(array);
+    }
+
     private static String getCellValue(Cell cell) {
         DataFormatter dataFormatter = new DataFormatter();
-
         return dataFormatter.formatCellValue(cell);
     }
 }

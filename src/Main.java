@@ -17,11 +17,11 @@ import static util.Utils.getRiders;
 
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
-    private static Integer iteration;
-    private static Integer particleCap;
-    private static Integer fee;
-    private static Integer cost;
-    private static Particle[][] particles;
+    private static int iteration;
+    private static int particleCap;
+    private static int fee;
+    private static int cost;
+    private static Particle[] particles;
 
     public static void main(String[] args){
         try{
@@ -32,6 +32,7 @@ public class Main {
             printExcelInformation(workbook);
             ask();
             buildParticles(workbook);
+            iterateParticles();
 
 
         } catch ( IOException | InvalidFormatException error) {
@@ -65,19 +66,23 @@ public class Main {
     }
 
     private static void buildParticles(Workbook workbook) {
-        particles = new Particle[iteration][particleCap];
+        particles = new Particle[particleCap];
 
+        for (int i = 0; i < particles.length; i++) {
+            particles[i] = new Particle(i, workbook);
+            particles[i].build();
+            particles[i].defineMax(cost, fee);
+        }
+
+        for (Particle particle : particles) {
+            particle.printParticle();
+        }
+    }
+
+    private static void iterateParticles() {
         for (int i = 0; i < iteration; i++) {
-            printIteration(i+1);
-            printSeparator();
-            for (int j = 0; j < particleCap; j++) {
-                Particle particle = new Particle(workbook);
-                particle.defineMax(workbook, cost, fee);
-                particles[i][j] = particle;
-                printParticle(j+1);
-                particle.printParticle();
-                printImportant("Max Value: " + particle.getMaxValue());
-                printSeparator();
+            for (Particle particle : particles) {
+                particle.iterate();
             }
         }
     }
