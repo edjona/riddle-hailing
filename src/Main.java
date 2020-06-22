@@ -82,6 +82,7 @@ public class Main {
     private static void iterateParticles() {
         for (int i = 0; i < iteration; i++) {
             for (Particle particle : particles) {
+                particle.defineMax(cost, fee);
                 particle.iterate();
             }
         }

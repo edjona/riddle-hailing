@@ -3,9 +3,8 @@ package model;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Random;
 
-import static Constant.Constants.DRIVER_RATING_MINIMUM;
 import static util.Logger.*;
 import static util.Utils.*;
 
@@ -54,7 +53,7 @@ public class Particle {
 
                     if (!isMeetRequirement(selectedDriver, selectedRider)) {
                         value[riderNumber][driverNumber] = 0;
-                        searchNewDriver(riderNumber);
+                        changeDriver(riderNumber, driverNumber);
                     }
                 }
             }
@@ -70,10 +69,9 @@ public class Particle {
         printSeparator();
         for (Integer[] x : value) {
             for (int val : x) {
-                if(val == 0) {
+                if (val == 0) {
                     System.out.print("[" + val + "] ");
-                }
-                else {
+                } else {
                     System.out.print(ANSI_RED + "[" + val + "] " + ANSI_RESET);
                 }
             }
@@ -84,8 +82,8 @@ public class Particle {
     }
 
     public void defineMax(Integer cost, Integer fee) {
-      double temp = 0;
-      for (int i = 0; i < value.length; i++) {
+        double temp = 0;
+        for (int i = 0; i < value.length; i++) {
             for (int j = 0; j < value[i].length; j++) {
                 Integer XDR = riders.get(i).getXDR();
                 Integer X0R = riders.get(i).getX0R();
@@ -107,34 +105,41 @@ public class Particle {
         return maxValue;
     }
 
-    private void searchNewDriver(int riderNumber) {
-        for (int driverNumber = 0; driverNumber < this.value[riderNumber].length; driverNumber++) {
-            Rider selectedRider = riders.get(riderNumber);
-            Driver selectedDriver = drivers.get(driverNumber);
+    private void changeDriver(int selectedRiderNumber, int selectedDriverNumber) {
+        for (int driverNumber = 0; driverNumber < value[selectedRiderNumber].length; driverNumber++) {
+            if (driverNumber != selectedDriverNumber) {
+                boolean driverAvailability = isDriverAvailable(driverNumber);
 
-            if(isMeetRequirement(selectedDriver, selectedRider) && isNotBookedByOtherRider(driverNumber)) {
-                value[riderNumber][driverNumber] = 1;
+                if (driverAvailability) {
+                    Rider selectedRider = riders.get(selectedRiderNumber);
+                    Driver selectedDriver = drivers.get(driverNumber);
+
+                    if (isMeetRequirement(selectedDriver, selectedRider)) {
+                        value[selectedRiderNumber][driverNumber] = 1;
+                        break;
+                    }
+                }
             }
         }
     }
 
     private boolean isMeetRequirement(Driver driver, Rider rider) {
         return driver.isHaveGoodRating()
-            && driver.isAvailablePickUpRider(rider)
-            && driver.isAvailableDropOffRider(rider)
-            && rider.isAvailablePickUpByDriver(driver);
+                && driver.isAvailablePickUpRider(rider)
+                && driver.isAvailableDropOffRider(rider)
+                && rider.isAvailablePickUpByDriver(driver);
     }
 
-    private boolean isNotBookedByOtherRider(int driverNumber) {
-        boolean availability = true;
+    private boolean isDriverAvailable(int selectedDriver) {
+        boolean driverAvailable = true;
 
-        for (int i = 0; i < value.length; i++) {
-            if(value[i][driverNumber] == 1) {
-                availability = false;
+        for (Integer[] values : value) {
+            if (values[selectedDriver] == 1) {
+                driverAvailable = false;
                 break;
             }
         }
 
-        return availability;
+        return driverAvailable;
     }
 }
