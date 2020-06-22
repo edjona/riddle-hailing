@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static Constant.Constants.C1;
 import static util.Logger.*;
 import static util.Utils.*;
 
@@ -44,7 +45,7 @@ public class Particle {
         }
     }
 
-    public void iterate() {
+    public Particle getCurrentParticleBest() {
         for (int riderNumber = 0; riderNumber < this.value.length; riderNumber++) {
             for (int driverNumber = 0; driverNumber < this.value[riderNumber].length; driverNumber++) {
                 if (value[riderNumber][driverNumber] == 1) {
@@ -58,8 +59,18 @@ public class Particle {
                 }
             }
         }
-        iteration++;
+        return this;
+    }
 
+    public void iterate(Particle prevPBest, Particle currPBest, Particle prevGBest, Particle currGBest) {
+
+        double[][] cognitiveLearning = calculateLearning(prevPBest.getValue(), currPBest.getValue());
+        double[][] socialLearning = calculateLearning(prevGBest.getValue(), currGBest.getValue());
+        double[][] learning = calculateMatrix(cognitiveLearning, socialLearning);
+        double[][] result = calculateMatrix(learning, velocity());
+        value = buildNewMatrix(result);
+
+        iteration++;
         printIteration(iteration);
         printParticle();
     }
@@ -105,6 +116,95 @@ public class Particle {
         return maxValue;
     }
 
+    public Integer[][] getValue() {
+        return this.value;
+    }
+
+    private Integer[][] buildNewMatrix(double[][] result) {
+        int row = result.length;
+        int col = result[0].length;
+
+        if(row > col) {
+            for (int j = 0; j < col; j++) {
+                double temp = result[0][j];
+                int higher = 0;
+
+                for (int i = 0; i < row; i++) {
+                    if (result[i][j] >= temp) {
+                        temp = result[i][j];
+                        higher = i;
+                    }
+                }
+
+                for (int i = 0; i < row; i++) {
+                    if (i == higher) {
+                        result[i][j] = 1;
+                    } else {
+                        result[i][j] = 0;
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < row; i++) {
+                double temp = result[i][0];
+                int higher = 0;
+
+                for (int j = 0; j < col; j++) {
+                    if (result[i][j] >= temp) {
+                        temp = result[i][j];
+                        higher = i;
+                    }
+                }
+
+                for (int j = 0; j < col; j++) {
+                    if (j == higher) {
+                        result[i][j] = 1;
+                    } else {
+                        result[i][j] = 0;
+                    }
+                }
+            }
+        }
+
+       
+
+        Integer[][] newMatrix = new Integer[row][col];
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                newMatrix[i][j] = (int) result[i][j];
+            }
+        }
+        return newMatrix;
+    }
+
+    private double[][] calculateLearning(Integer[][] prevBest, Integer[][] currBest) {
+        int x = prevBest.length;
+        int y = prevBest[0].length;
+        double R1 = Math.random();
+
+        double[][] tempPBest = new double[x][y];
+
+        for (int i = 0; i < tempPBest.length; i++) {
+            for (int j = 0; j < tempPBest[i].length; j++) {
+                tempPBest[i][j] = (C1 * R1) * (currBest[i][j] - prevBest[i][j]);
+            }
+        }
+
+        return tempPBest;
+    }
+
+    private double[][] calculateMatrix(double[][] x, double[][] y) {
+        double[][] temp = new double[riders.size()][drivers.size()];
+
+        for (int i = 0; i < temp.length; i++) {
+            for (int j = 0; j < temp[i].length; j++) {
+                temp[i][j] = x[i][j] + y[i][j];
+            }
+        }
+
+        return temp;
+    }
+
     private void changeDriver(int selectedRiderNumber, int selectedDriverNumber) {
         for (int driverNumber = 0; driverNumber < value[selectedRiderNumber].length; driverNumber++) {
             if (driverNumber != selectedDriverNumber) {
@@ -141,5 +241,17 @@ public class Particle {
         }
 
         return driverAvailable;
+    }
+
+    private double[][] velocity() {
+        double[][] velocity = new double[riders.size()][drivers.size()];
+
+        for (int i = 0; i < velocity.length; i++) {
+            for (int j = 0; j < velocity[i].length; j++) {
+                velocity[i][j] = new Random().nextInt(21) - 10;
+            }
+        }
+
+        return velocity;
     }
 }

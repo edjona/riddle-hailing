@@ -23,6 +23,11 @@ public class Logger {
         System.out.println(ANSI_BLUE + separator + ANSI_RESET);
     }
 
+    public static void printImportantSeparator() {
+        String separator = "======================================";
+        System.out.println(ANSI_RED + separator + ANSI_RESET);
+    }
+
     public static void printImportant(String message) {
         System.out.println(ANSI_GREEN + message + ANSI_RESET);
     }

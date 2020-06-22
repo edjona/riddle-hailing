@@ -21,7 +21,10 @@ public class Main {
     private static int particleCap;
     private static int fee;
     private static int cost;
-    private static Particle[] particles;
+    private static Particle[] previousPBest;
+    private static Particle[] currentPBest;
+    private static Particle previousGBest = null;
+    private static Particle currentGBest = null;
 
     public static void main(String[] args){
         try{
@@ -66,24 +69,53 @@ public class Main {
     }
 
     private static void buildParticles(Workbook workbook) {
-        particles = new Particle[particleCap];
-
-        for (int i = 0; i < particles.length; i++) {
-            particles[i] = new Particle(i, workbook);
-            particles[i].build();
-            particles[i].defineMax(cost, fee);
+        currentPBest = new Particle[particleCap];
+        for (int i = 0; i < currentPBest.length; i++) {
+            currentPBest[i] = new Particle(i, workbook);
+            currentPBest[i].build();
+            currentPBest[i].defineMax(cost, fee);
         }
 
-        for (Particle particle : particles) {
+        for (Particle particle : currentPBest) {
             particle.printParticle();
+        }
+
+        for (Particle particle : currentPBest) {
+            if (currentGBest == null) {
+                currentGBest = particle;
+            } else {
+                if (currentGBest.getMaxValue() < particle.getMaxValue()) {
+                    currentGBest = particle;
+                }
+            }
         }
     }
 
     private static void iterateParticles() {
+        previousPBest = currentPBest;
+        previousGBest = currentGBest;
+
         for (int i = 0; i < iteration; i++) {
-            for (Particle particle : particles) {
+            for (Particle particle : currentPBest) {
                 particle.defineMax(cost, fee);
-                particle.iterate();
+                particle.getCurrentParticleBest();
+            }
+        }
+
+        for (Particle particle : currentPBest) {
+            if (currentGBest == null) {
+                currentGBest = particle;
+            } else {
+                if (currentGBest.getMaxValue() < particle.getMaxValue()) {
+                    currentGBest = particle;
+                }
+            }
+        }
+
+        for (int i = 0; i < iteration; i++) {
+            for (int j = 0; j < currentPBest.length; j++) {
+                currentPBest[j].iterate(previousPBest[j], currentPBest[j], previousGBest, currentGBest);
+                currentPBest[j].defineMax(cost, fee);
             }
         }
     }
