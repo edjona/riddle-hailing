@@ -10,7 +10,7 @@ import static util.Logger.*;
 import static util.Utils.*;
 
 public class Particle {
-    private Integer id;
+    private final Integer id;
     private Integer[][] value;
     private Integer iteration = 0;
     private Double maxValue;
@@ -54,7 +54,6 @@ public class Particle {
 
                     if (!isMeetRequirement(selectedDriver, selectedRider)) {
                         value[riderNumber][driverNumber] = 0;
-                        changeDriver(riderNumber, driverNumber);
                     }
                 }
             }
@@ -72,7 +71,6 @@ public class Particle {
 
         iteration++;
         printIteration(iteration);
-        printParticle();
     }
 
     public void printParticle() {
@@ -112,12 +110,109 @@ public class Particle {
         this.maxValue = temp;
     }
 
+    public void validate() {
+        for (int i = 0; i < riders.size(); i++) {
+            for (int j = 0; j < drivers.size(); j++) {
+                Rider selectedRider = this.riders.get(i);
+                Driver selectedDriver = this.drivers.get(j);
+
+                if (value[i][j] == 1) {
+                    if(!isMeetRequirement(selectedDriver, selectedRider)) {
+//                        System.out.println("NOT MEET REQUIREMENT");
+                        maxValue = (double) 0;
+                        break;
+                    }
+                }
+            }
+
+            if(maxValue == 0) {
+
+                break;            }
+        }
+    }
+
+    public void validate(boolean information) {
+        for (int i = 0; i < riders.size(); i++) {
+            for (int j = 0; j < drivers.size(); j++) {
+                Rider selectedRider = this.riders.get(i);
+                Driver selectedDriver = this.drivers.get(j);
+
+                if (value[i][j] == 1) {
+                    if(!isMeetRequirement(selectedDriver, selectedRider)) {
+                        printError("NOT MEET REQUIREMENT");
+                        maxValue = (double) 0;
+                        break;
+                    }
+                }
+            }
+
+            if(maxValue == 0) {
+                break;
+            }
+        }
+    }
+
+    public void checkDuplicate() {
+        if(isDuplicateRider() || isDuplicateDriver()) {
+
+            maxValue = (double) 0;
+        }
+    }
+
+    public void checkDuplicate(boolean information) {
+        if(isDuplicateRider() || isDuplicateDriver()) {
+            printError("DUPLICATE");
+            maxValue = (double) 0;
+        }
+    }
+
     public Double getMaxValue() {
         return maxValue;
     }
 
     public Integer[][] getValue() {
         return this.value;
+    }
+
+    public void printFinalResult() {
+        for (int i = 0; i < riders.size(); i++) {
+            for (int j = 0; j < drivers.size(); j++) {
+                if(value[i][j] == 1) {
+                    printResult(drivers.get(j), riders.get(i));
+                }
+            }
+        }
+    }
+    private boolean isDuplicateRider() {
+        for (int i = 0; i < riders.size(); i++) {
+            int count = 0;
+            for (int j = 0; j < drivers.size(); j++) {
+                if(value[i][j] == 1) {
+                    count++;
+                }
+            }
+
+            if(count >= 2) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isDuplicateDriver() {
+        for (int i = 0; i < drivers.size(); i++) {
+            int count = 0;
+            for (int j = 0; j < riders.size(); j++) {
+                if(value[j][i] == 1) {
+                    count++;
+                }
+            }
+
+            if(count >= 2) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Integer[][] buildNewMatrix(double[][] result) {
@@ -152,7 +247,7 @@ public class Particle {
                 for (int j = 0; j < col; j++) {
                     if (result[i][j] >= temp) {
                         temp = result[i][j];
-                        higher = i;
+                        higher = j;
                     }
                 }
 
@@ -205,42 +300,11 @@ public class Particle {
         return temp;
     }
 
-    private void changeDriver(int selectedRiderNumber, int selectedDriverNumber) {
-        for (int driverNumber = 0; driverNumber < value[selectedRiderNumber].length; driverNumber++) {
-            if (driverNumber != selectedDriverNumber) {
-                boolean driverAvailability = isDriverAvailable(driverNumber);
-
-                if (driverAvailability) {
-                    Rider selectedRider = riders.get(selectedRiderNumber);
-                    Driver selectedDriver = drivers.get(driverNumber);
-
-                    if (isMeetRequirement(selectedDriver, selectedRider)) {
-                        value[selectedRiderNumber][driverNumber] = 1;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
     private boolean isMeetRequirement(Driver driver, Rider rider) {
         return driver.isHaveGoodRating()
                 && driver.isAvailablePickUpRider(rider)
                 && driver.isAvailableDropOffRider(rider)
                 && rider.isAvailablePickUpByDriver(driver);
-    }
-
-    private boolean isDriverAvailable(int selectedDriver) {
-        boolean driverAvailable = true;
-
-        for (Integer[] values : value) {
-            if (values[selectedDriver] == 1) {
-                driverAvailable = false;
-                break;
-            }
-        }
-
-        return driverAvailable;
     }
 
     private double[][] velocity() {

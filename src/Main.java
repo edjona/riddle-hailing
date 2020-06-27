@@ -8,6 +8,8 @@ import util.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -34,10 +36,16 @@ public class Main {
 
             printExcelInformation(workbook);
             ask();
+
+            Instant start = Instant.now();
             buildParticles(workbook);
             iterateParticles();
 
-
+            currentGBest.printFinalResult();
+            
+            Instant finish = Instant.now();
+            long timeElapsed = Duration.between(start, finish).toMillis();
+            printImportant("PSO processing time is " + timeElapsed + " millis.");
         } catch ( IOException | InvalidFormatException error) {
             Logger.printError(error.getMessage());
         }
@@ -71,9 +79,10 @@ public class Main {
     private static void buildParticles(Workbook workbook) {
         currentPBest = new Particle[particleCap];
         for (int i = 0; i < currentPBest.length; i++) {
-            currentPBest[i] = new Particle(i, workbook);
+            currentPBest[i] = new Particle((i+1), workbook);
             currentPBest[i].build();
             currentPBest[i].defineMax(cost, fee);
+            currentPBest[i].validate();
         }
 
         for (Particle particle : currentPBest) {
@@ -89,19 +98,24 @@ public class Main {
                 }
             }
         }
+
+        printImportant("Global Best for Iteration 0");
+        currentGBest.printParticle();
     }
 
     private static void iterateParticles() {
         previousPBest = currentPBest;
         previousGBest = currentGBest;
 
+        //Search Personal Best
         for (int i = 0; i < iteration; i++) {
-            for (Particle particle : currentPBest) {
-                particle.defineMax(cost, fee);
-                particle.getCurrentParticleBest();
+            for (int j = 0; j < currentPBest.length; j++) {
+                currentPBest[j].defineMax(cost, fee);
+                currentPBest[j] = currentPBest[j].getCurrentParticleBest();
             }
         }
 
+        //Search Global Best
         for (Particle particle : currentPBest) {
             if (currentGBest == null) {
                 currentGBest = particle;
@@ -112,11 +126,27 @@ public class Main {
             }
         }
 
-        for (int i = 0; i < iteration; i++) {
+        for (int i = 1; i <= iteration; i++) {
             for (int j = 0; j < currentPBest.length; j++) {
                 currentPBest[j].iterate(previousPBest[j], currentPBest[j], previousGBest, currentGBest);
                 currentPBest[j].defineMax(cost, fee);
+                currentPBest[j].validate(true);
+                currentPBest[j].checkDuplicate(true);
+                currentPBest[j].printParticle();
             }
+            printImportant("Global Best for Iteration " + i);
+
+            for (Particle particle : currentPBest) {
+                if (currentGBest == null) {
+                    currentGBest = particle;
+                } else {
+                    if (currentGBest.getMaxValue() < particle.getMaxValue()) {
+                        currentGBest = particle;
+                    }
+                }
+            }
+
+            currentGBest.printParticle();
         }
     }
 }
