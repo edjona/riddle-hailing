@@ -6,16 +6,21 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import static Constant.Constants.C1;
+import static Constant.Constants.C2;
 import static util.Logger.*;
 import static util.Utils.*;
 
-public class Particle {
-    private final Integer id;
+public class Particle implements Cloneable {
+    private Integer id;
     private Integer[][] value;
     private Integer iteration = 0;
     private Double maxValue;
-    private final ArrayList<Rider> riders;
-    private final ArrayList<Driver> drivers;
+    private ArrayList<Rider> riders;
+    private ArrayList<Driver> drivers;
+
+    public  Particle() {
+
+    }
 
     public Particle(Integer id, Workbook workbook) {
         this.id = id;
@@ -63,8 +68,8 @@ public class Particle {
 
     public void iterate(Particle prevPBest, Particle currPBest, Particle prevGBest, Particle currGBest) {
 
-        double[][] cognitiveLearning = calculateLearning(prevPBest.getValue(), currPBest.getValue());
-        double[][] socialLearning = calculateLearning(prevGBest.getValue(), currGBest.getValue());
+        double[][] cognitiveLearning = calculateLearning(C1, prevPBest.getValue(), currPBest.getValue());
+        double[][] socialLearning = calculateLearning(C2, prevGBest.getValue(), currGBest.getValue());
         double[][] learning = calculateMatrix(cognitiveLearning, socialLearning);
         double[][] result = calculateMatrix(learning, velocity());
         value = buildNewMatrix(result);
@@ -118,7 +123,6 @@ public class Particle {
 
                 if (value[i][j] == 1) {
                     if(!isMeetRequirement(selectedDriver, selectedRider)) {
-//                        System.out.println("NOT MEET REQUIREMENT");
                         maxValue = (double) 0;
                         break;
                     }
@@ -261,8 +265,6 @@ public class Particle {
             }
         }
 
-       
-
         Integer[][] newMatrix = new Integer[row][col];
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
@@ -272,7 +274,7 @@ public class Particle {
         return newMatrix;
     }
 
-    private double[][] calculateLearning(Integer[][] prevBest, Integer[][] currBest) {
+    private double[][] calculateLearning(Integer constanta, Integer[][] prevBest, Integer[][] currBest) {
         int x = prevBest.length;
         int y = prevBest[0].length;
         double R1 = Math.random();
@@ -281,7 +283,7 @@ public class Particle {
 
         for (int i = 0; i < tempPBest.length; i++) {
             for (int j = 0; j < tempPBest[i].length; j++) {
-                tempPBest[i][j] = (C1 * R1) * (currBest[i][j] - prevBest[i][j]);
+                tempPBest[i][j] = (constanta * R1) * (currBest[i][j] - prevBest[i][j]);
             }
         }
 
@@ -317,5 +319,15 @@ public class Particle {
         }
 
         return velocity;
+    }
+
+    public Particle copyResult() {
+        Particle particle = new Particle();
+        particle.id = this.id;
+        particle.value = this.value;
+        particle.maxValue = this.maxValue;
+        particle.drivers = this.drivers;
+        particle.riders = this.riders;
+        return particle;
     }
 }

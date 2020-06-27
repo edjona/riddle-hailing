@@ -27,6 +27,7 @@ public class Main {
     private static Particle[] currentPBest;
     private static Particle previousGBest = null;
     private static Particle currentGBest = null;
+    private static Particle finalGBest = null;
 
     public static void main(String[] args){
         try{
@@ -41,7 +42,13 @@ public class Main {
             buildParticles(workbook);
             iterateParticles();
 
-            currentGBest.printFinalResult();
+            System.out.println();
+            System.out.println();
+
+            printImportant("Final Result");
+            printSeparator();
+            finalGBest.printFinalResult();
+            finalGBest.printParticle();
             
             Instant finish = Instant.now();
             long timeElapsed = Duration.between(start, finish).toMillis();
@@ -101,6 +108,7 @@ public class Main {
 
         printImportant("Global Best for Iteration 0");
         currentGBest.printParticle();
+        finalGBest = currentGBest;
     }
 
     private static void iterateParticles() {
@@ -147,6 +155,9 @@ public class Main {
             }
 
             currentGBest.printParticle();
+            if(finalGBest.getMaxValue() < currentGBest.getMaxValue()) {
+                finalGBest = currentGBest;
+            }
         }
     }
 }
